@@ -21,8 +21,8 @@ router.post("/entry", async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;
-    const use_role_code = req.body.use_role_code;
-    const use_state_code = req.body.use_state_code;
+    const user_role_code = req.body.user_role_code;
+    const user_state_code = req.body.user_state_code;
 
     //이메일 중복체크
     const existMember = await db.Member.findOne({ where: { email: email } });
@@ -43,8 +43,8 @@ router.post("/entry", async (req, res, next) => {
       email: email,
       member_password: encryptedPassword,
       name: name,
-      use_role_code: use_role_code,
-      use_state_code: use_state_code,
+      user_role_code: user_role_code,
+      user_state_code: user_state_code,
       entry_date: Date.now(),
     };
 
@@ -59,7 +59,7 @@ router.post("/entry", async (req, res, next) => {
   } catch (err) {
     apiResult.code = 500;
     apiResult.data = null;
-    apiResult.msg = "가입처리에 실패했습니다.";
+    apiResult.msg = err; //"가입처리에 실패했습니다.";
     console.error(err);
   }
   res.json(apiResult);

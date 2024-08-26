@@ -5,7 +5,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var sequelize = require("./models/index.js").sequelize;
 require("dotenv").config();
-
+const cors = require("cors");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var memberRouter = require("./routes/APImember");
@@ -13,7 +13,7 @@ var memberRouter = require("./routes/APImember");
 var app = express();
 
 sequelize.sync();
-
+app.use(cors());
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");

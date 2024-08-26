@@ -24,12 +24,12 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
         comment: "회원명",
       },
-      use_role_code: {
+      user_role_code: {
         type: DataTypes.TINYINT,
         allowNull: false,
         comment: "사용자권한코드 0:관리자 1:슈퍼사용자, 2:일반사용자",
       },
-      use_state_code: {
+      user_state_code: {
         type: DataTypes.TINYINT,
         allowNull: false,
         comment: "이용상태 0:허용대기 1:사용중 2:탈퇴처리",

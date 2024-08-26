@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { IEntryMember } from "@/interfaces/member";
@@ -19,29 +20,34 @@ const Regist = () => {
       ...member, //기존 member 객체내용을 복사해서 가져온다.
       [e.target.name]: e.target.value, //name 은 속성값 -> name ="???" 에서 name 을 의미한다.
     });
+    console.log(member);
   };
 
   const registSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Form Submit 이벤트가 호출되면 화면을 리프레시하는 기능이 작동되므로, 이를 방지하기 위해 이벤트를 취소합니다.
     e.preventDefault();
+    console.log(member);
     try {
       const response = await fetch("http://localhost:5000/api/member/entry", {
         method: "POST",
-        body: JSON.stringify(member),
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(member),
       });
       const result = await response.json();
       if (result.code == 200) {
+        alert("회원가입이 완료되었습니다.");
         router.push("/login");
       } else {
-        alert(result.message);
+        console.log("백엔드 서버 에러");
         if (result.msg == "이미 가입된 회원입니다.") {
           alert("이미 가입된 회원입니다.");
         }
+        console.log(result.msg);
       }
-    } catch (error) {
-      console.error("백엔드 restAPI호출중 에러 발생 : ", error);
+    } catch (err) {
+      console.log("회원가입 에러발생", err);
     }
   };
   return (
@@ -150,9 +156,9 @@ const Regist = () => {
                   onChange={memberChange}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
-                  <option value="0">관리자</option>
-                  <option value="1">슈퍼사용자</option>
-                  <option value="2">일반사용자</option>
+                  <option value={0}>관리자</option>
+                  <option value={1}>슈퍼사용자</option>
+                  <option value={2}>일반사용자</option>
                 </select>
               </div>
             </div>
@@ -175,9 +181,9 @@ const Regist = () => {
                   onChange={memberChange}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 >
-                  <option value="0">허용대기</option>
-                  <option value="1">사용중</option>
-                  <option value="2">탈퇴처리</option>
+                  <option value={0}>허용대기</option>
+                  <option value={1}>사용중</option>
+                  <option value={2}>탈퇴처리</option>
                 </select>
               </div>
             </div>

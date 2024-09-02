@@ -28,8 +28,8 @@ const callouts = [
 ];
 
 import { useState, useContext } from "react";
-// import { GlobalContext } from '@/library/globalContext';
-// import { IGlobalData, ILoginMember } from '@/interfaces/global';
+import { GlobalContext } from "@/library/globalContext";
+import { IGlobalData, ILoginMember } from "@/interfaces/global";
 
 const Home = () => {
   // const { globalData, setGlobalData } = useContext(GlobalContext);

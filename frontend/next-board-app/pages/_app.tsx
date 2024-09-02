@@ -27,8 +27,6 @@ export default function App({ Component, pageProps }: AppProps) {
   let layoutMode: string = "general";
   if (currentPath === "/login" || currentPath === "/regist") {
     layoutMode = "auth";
-  } else if (currentPath.indexOf("/mypage") > -1) {
-    layoutMode = "mypage";
   } else {
     layoutMode = "general";
   }
@@ -39,12 +37,6 @@ export default function App({ Component, pageProps }: AppProps) {
     switch (layoutMode) {
       case "auth":
         return <Component {...pageProps} />;
-      // case 'mypage':
-      //   return (
-      //     // <MyPageLayout>
-      //     //   <Component {...pageProps} />
-      //     // </MyPageLayout>
-      //   );
       default:
         return (
           <MainLayout>
@@ -55,8 +47,9 @@ export default function App({ Component, pageProps }: AppProps) {
   };
 
   return (
-    <MainLayout>
-      <Component {...pageProps} />
-    </MainLayout>
+    // <MainLayout>
+    //   <Component {...pageProps} />
+    // </MainLayout>
+    renderLayoutOnPath()
   );
 }

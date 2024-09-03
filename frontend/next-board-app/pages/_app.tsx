@@ -46,10 +46,5 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   };
 
-  return (
-    // <MainLayout>
-    //   <Component {...pageProps} />
-    // </MainLayout>
-    renderLayoutOnPath()
-  );
+  return renderLayoutOnPath();
 }

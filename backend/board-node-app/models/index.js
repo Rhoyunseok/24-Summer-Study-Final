@@ -28,6 +28,8 @@ db.Sequelize = Sequelize; //Sequelize팩키지에서제공하는각종데이터�
 
 //회원모델모듈파일참조하고db속성정의하기
 db.Member = require("./member.js")(sequelize, Sequelize);
+//게시판모델모듈파일참조하고db속성정의하기
+db.Board = require("./board.js")(sequelize, Sequelize);
 
 //db객체외부로노출하기
 module.exports = db;

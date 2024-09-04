@@ -99,7 +99,7 @@ router.get("/mypage", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "게시글이 없습니다." });
     }
 
-    res.status(200).json({ data: boards, userName, msg: "OK" });
+    res.status(200).json({ data: boards, userName, userId, msg: "OK" });
   } catch (error) {
     console.error(error);
     res

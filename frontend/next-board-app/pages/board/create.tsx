@@ -3,41 +3,28 @@ import axios from "axios";
 
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { ICreateBlog } from "@/interfaces/blog";
+import { ICreateBoard } from "@/interfaces/board";
 import { useEffect } from "react";
 
 const BlogCreate = () => {
   const router = useRouter();
 
-  //최초 화면 컴포넌트 렌더링(마운팅)시점에 로컬스토리지내 토큰값 존재여부 체크후
-  //토큰이 없으면 로그인하고 오시라고 페이지 리디렉션처리하기
   useEffect(() => {
-    //서버 인증 JWT 사용자 인증토큰이 스토리지에 없으면 로그인하고 오시라고 처리
     if (localStorage.getItem("token") == undefined) {
       router.push("/login");
     }
   }, []);
 
-  const [blog, setBlog] = useState<ICreateBlog>({
+  const [board, setBoard] = useState<ICreateBoard>({
     title: "",
     contents: "",
-    display: 1,
+    is_display_code: 1,
+    board_type_code: 1,
   });
-
-  // const blogChange = (
-  //   e: React.ChangeEvent<
-  //     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  //   >,
-  // ) => {
-  //   setBlog({
-  //     ...blog,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // };
 
   //신규 게시글 정보 백엔드 api로 전달해서 등록처리 한다.
 
-  const blogSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const boardsubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); //form submit 이벤트 취소처리
 
     //axios 나 fetch() 를 통해 백엔드 RESTFul API 호출하기
@@ -46,13 +33,9 @@ const BlogCreate = () => {
     const token = localStorage.getItem("token");
 
     try {
-      //case1) axios 라이브러리를 사용한 RESTFul API 호출하기
-      //axios.post('백엔드API호출주소', 전달할데이터객체, 옵션);
-      //axios.post('백엔드API 호출주소', 전달할데이터객체, {headers: {Authorization: `Bearer ${token}`}});
-
       const response = await axios.post(
-        "http://localhost:5000/api/article/create",
-        blog,
+        "http://localhost:5000/api/board/create",
+        board,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -60,37 +43,21 @@ const BlogCreate = () => {
         }
       );
 
-      console.log("블로깅 등록 결과", response);
+      console.log("게시글 등록 결과", response);
 
       if (response.data.code === 200) {
         alert("블로깅이 등록되었습니다!");
-        router.push("/mypage/blog/list");
+        router.push("/board");
       } else {
         console.error("백엔드 에러 발생222", response.data.msg);
       }
-
-      //case2) fetch() 함수를 사용한 RESTFul API 호출하기
-      // const response = await fetch('http://localhost:5000/api/article/create', {
-      //   method: 'POST',
-      //   body: JSON.stringify(blog),
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // });
-      // const result = await response.json();
-      // if (result.code == 200) {
-      //   alert('블로깅이 등록되었습니다!');
-      //   router.push('/mypage/blog/list');
-      // } else {
-      //   console.error('블로깅 등록 중 에러 발생\n', result.msg);
-      // }
     } catch (err) {
       console.error("블로깅 등록 중 에러 발생");
     }
   };
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <form onSubmit={blogSubmit} className="w-full max-w-lg">
+      <form onSubmit={boardsubmit} className="w-full max-w-6xl">
         <div className="space-y-12 ">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -114,9 +81,9 @@ const BlogCreate = () => {
                       id="title"
                       name="title"
                       type="text"
-                      value={blog.title}
+                      value={board.title}
                       onChange={(e) => {
-                        setBlog({ ...blog, title: e.target.value });
+                        setBoard({ ...board, title: e.target.value });
                       }}
                       placeholder="제목을 입력해주세요"
                       className="block flex-1 border-0  bg-transparent py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
@@ -137,9 +104,9 @@ const BlogCreate = () => {
                     id="contents"
                     name="contents"
                     rows={5}
-                    value={blog.contents}
+                    value={board.contents}
                     onChange={(e) => {
-                      setBlog({ ...blog, contents: e.target.value });
+                      setBoard({ ...board, contents: e.target.value });
                     }}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -155,11 +122,14 @@ const BlogCreate = () => {
                 </label>
                 <div className="mt-2">
                   <select
-                    id="display"
-                    name="display"
-                    value={blog.display}
+                    id="is_display_code"
+                    name="is_display_code"
+                    value={board.is_display_code}
                     onChange={(e) => {
-                      setBlog({ ...blog, display: Number(e.target.value) });
+                      setBoard({
+                        ...board,
+                        is_display_code: Number(e.target.value),
+                      });
                     }}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                   >
@@ -168,8 +138,33 @@ const BlogCreate = () => {
                   </select>
                 </div>
               </div>
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="board-type-code"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  board-type-code
+                </label>
+                <div className="mt-2">
+                  <select
+                    id="board-type-code"
+                    name="board-type-code"
+                    value={board.is_display_code}
+                    onChange={(e) => {
+                      setBoard({
+                        ...board,
+                        is_display_code: Number(e.target.value),
+                      });
+                    }}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                  >
+                    <option value={0}>일반</option>
+                    <option value={1}>공지</option>
+                  </select>
+                </div>
+              </div>
 
-              <div className="col-span-full">
+              {/* <div className="col-span-full">
                 <label
                   htmlFor="file"
                   className="block text-sm font-medium leading-6 text-gray-900"
@@ -188,7 +183,7 @@ const BlogCreate = () => {
     dark:file:bg-neutral-700 dark:file:text-neutral-400"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -198,7 +193,7 @@ const BlogCreate = () => {
             type="button"
             className="text-sm font-semibold leading-6 text-gray-900"
             onClick={() => {
-              router.push("/mypage/blog/list");
+              router.push("/board");
             }}
           >
             Cancel

@@ -3,6 +3,8 @@ var router = express.Router();
 var db = require("../models/index");
 var jwt = require("jsonwebtoken");
 
+const authMiddleware = require("../middleware/auth"); // 인증 미들웨어
+
 /*
 -호출 주소 : http://localhost:5000/api/board/list
 */
@@ -70,6 +72,88 @@ router.post("/create", async (req, res, next) => {
     apiResult.msg = "게시글 등록에 실패하였습니다.";
     console.error(err);
   }
+  res.json(apiResult);
+});
+
+/*
+조회수 증가
+*/
+router.put("/:id/view", async (req, res) => {
+  const boardId = req.params.id;
+
+  try {
+    // 게시글을 조회하고 조회수를 1 증가
+    const board = await db.Board.findByPk(boardId);
+    if (!board) {
+      return res.status(404).json({ message: "게시글을 찾을 수 없습니다." });
+    }
+
+    // 조회수 증가
+    board.view_count += 1;
+    await board.save();
+
+    res.status(200).json({ message: "조회수가 증가했습니다." });
+  } catch (error) {
+    console.error("Error updating view count:", error);
+    res
+      .status(500)
+      .json({ message: "서버 오류로 조회수 증가에 실패했습니다." });
+  }
+});
+
+/*
+-호출 주소 : http://localhost:5000/api/board/mypage/:id
+*/
+router.get("/mypage/:id", authMiddleware, async (req, res, next) => {
+  let apiResult = {
+    code: 400,
+    data: null,
+    msg: "",
+  };
+  try {
+    const memberId = req.user.id; // 미들웨어에서 토큰으로 가져온 사용자 ID
+
+    // 해당 사용자의 게시글만 조회
+    const boards = await db.Board.findAll({
+      where: { reg_member_id: memberId },
+    });
+
+    apiResult.code = 200;
+    apiResult.data = boards;
+    apiResult.msg = "OK";
+  } catch (err) {
+    console.error(err);
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error";
+  }
+
+  res.json(apiResult);
+});
+
+/*
+-호출 주소 : http://localhost:5000/api/board/:id
+*/
+router.get("/:id", async (req, res, next) => {
+  let apiResult = {
+    code: 400,
+    data: null,
+    msg: "",
+  };
+  try {
+    const boardIdx = req.params.id;
+    const board = await db.Board.findOne({
+      where: { board_id: boardIdx },
+    });
+    apiResult.code = 200;
+    apiResult.data = board;
+    apiResult.msg = "OK";
+  } catch (err) {
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error";
+  }
+
   res.json(apiResult);
 });
 

@@ -1,26 +1,30 @@
-const posts = [
-  {
-    id: 1,
-    title: "Boost your conversion rate",
-    href: "#",
-    description:
-      "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80",
-    date: "Mar 16, 2020",
-    datetime: "2020-03-16",
-    category: { title: "Marketing", href: "#" },
-    author: {
-      name: "Michael Foster",
-      role: "Co-Founder / CTO",
-      href: "#",
-      imageUrl:
-        "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    },
-  },
-];
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import { IBoard } from "@/interfaces/board";
 
-const Blogs = () => {
+const Boards = () => {
+  const router = useRouter();
+  const [boards, setBoards] = useState<IBoard[]>([]);
+  useEffect(() => {
+    setBoardList();
+  }, []);
+  async function setBoardList() {
+    try {
+      const res = await fetch("http://localhost:5000/api/board/list");
+      const result = await res.json();
+      const sortedBoard = result.data.sort((a: IBoard, b: IBoard) => {
+        if (a.board_type_code === 1 && b.board_type_code !== 1) {
+          return -1; // a를 상단에 배치
+        } else if (a.board_type_code !== 1 && b.board_type_code === 1) {
+          return 1; // b를 상단에 배치
+        }
+        return 0; // 둘 다 같은 board_type_code이면 순서를 유지
+      });
+      setBoards(result.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -43,56 +47,68 @@ const Blogs = () => {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {posts.map((post) => (
+          {boards.map((board) => (
             <article
-              key={post.id}
+              key={board.board_id}
               className="flex flex-col items-start justify-between"
             >
-              <div className="relative w-full">
+              {/* <div className="relative w-full">
                 <img
                   alt=""
                   src={post.imageUrl}
                   className="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]"
                 />
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
-              </div>
+              </div> */}
               <div className="max-w-xl">
                 <div className="mt-8 flex items-center gap-x-4 text-xs">
-                  <time dateTime={post.datetime} className="text-gray-500">
-                    {post.date}
+                  <time
+                    dateTime={new Date(board.reg_date).toISOString()}
+                    className="text-gray-500"
+                  >
+                    {new Date(board.reg_date).toLocaleDateString()}
+                    <span className="text-gray-600">
+                      조회수: {board.view_count}
+                    </span>
                   </time>
-                  <a
+                  {/* <a
                     href={post.category.href}
                     className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100"
                   >
                     {post.category.title}
-                  </a>
+                  </a> */}
                 </div>
                 <div className="group relative">
-                  <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-                    <a href={post.href}>
+                  <h3
+                    className={`mt-3 text-lg font-semibold leading-6 group-hover:text-gray-600 ${
+                      board.board_type_code === 1
+                        ? "text-red-600"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    <a href={`/board/${board.board_id}`}>
                       <span className="absolute inset-0" />
-                      {post.title}
+                      {board.title}
                     </a>
                   </h3>
                   <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">
-                    {post.description}
+                    {board.contents}
                   </p>
                 </div>
                 <div className="relative mt-8 flex items-center gap-x-4">
-                  <img
+                  {/* <img
                     alt=""
                     src={post.author.imageUrl}
                     className="h-10 w-10 rounded-full bg-gray-100"
-                  />
+                  /> */}
                   <div className="text-sm leading-6">
                     <p className="font-semibold text-gray-900">
-                      <a href={post.author.href}>
+                      <a href="">
                         <span className="absolute inset-0" />
-                        {post.author.name}
+                        {board.reg_member_id}
                       </a>
                     </p>
-                    <p className="text-gray-600">{post.author.role}</p>
+                    <p className="text-gray-600">여기다가 뭐 적어야함?</p>
                   </div>
                 </div>
               </div>
@@ -104,4 +120,4 @@ const Blogs = () => {
   );
 };
 
-export default Blogs;
+export default Boards;

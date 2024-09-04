@@ -75,7 +75,7 @@ const Header = () => {
             // 로그인이 되어 있을 때 로그아웃 버튼 표시
             <>
               <Link
-                href="/mypage/profile"
+                href="/mypage"
                 className="text-sm font-semibold leading-6 ml-4 text-gray-900"
               >
                 MyPage
@@ -150,7 +150,7 @@ const Header = () => {
                 {isLoggedIn ? (
                   <>
                     <Link
-                      href="/mypage/profile"
+                      href="/mypage"
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                     >
                       Profile

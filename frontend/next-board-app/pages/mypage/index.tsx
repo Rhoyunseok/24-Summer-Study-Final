@@ -1,33 +1,30 @@
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { IBoard } from "@/interfaces/board";
 import axios from "axios";
 
 const MyPage = () => {
   const [boards, setBoards] = useState<IBoard[]>([]);
-  const router = useRouter();
+  const [userName, setUserName] = useState(""); // 사용자 이름 상태
 
   useEffect(() => {
-    // 로그인한 사용자의 게시글만 가져오는 함수
-    const fetchMyBoards = async () => {
-      const token = localStorage.getItem("token"); // 토큰 가져오기
-      const user = localStorage.getItem("user"); // 사용자 정보 가져오기
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/board/mypage/${user}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // 토큰을 Authorization 헤더에 추가
-            },
-          }
-        );
-        setBoards(response.data.data);
-      } catch (error) {
-        console.error("Failed to fetch my boards:", error);
-      }
-    };
+    const token = localStorage.getItem("token"); // localStorage에서 토큰 가져오기
 
-    fetchMyBoards();
+    if (token) {
+      // 사용자가 작성한 게시물 조회
+      axios
+        .get("http://localhost:5000/api/board/mypage", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Authorization 헤더에 토큰 포함
+          },
+        })
+        .then((response) => {
+          setBoards(response.data.data); // 사용자가 작성한 게시물 저장
+          setUserName(response.data.userName); // 사용자 이름 저장
+        })
+        .catch((error) => {
+          console.error("Failed to fetch my page data:", error);
+        });
+    }
   }, []);
 
   return (
@@ -35,10 +32,10 @@ const MyPage = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            My Posts
+            마이페이지
           </h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
-            Here are your posts.
+            {userName}님, 여기에 당신의 게시글이 있습니다.
           </p>
         </div>
 

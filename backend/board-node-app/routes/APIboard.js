@@ -41,7 +41,7 @@ router.post("/create", async (req, res, next) => {
   try {
     var token = req.headers.authorization.split("Bearer ")[1];
     console.log("api token : ", token);
-    //사용자 토큰정보 유효성 검사 후 정상적이면 토큰내에 사용자 인증 json데이터를 반환합니다.
+    //사용자 토큰정보 유효성 검사 후 정상await적이면 토큰내에 사용자 인증 json데이터를 반환합니다.
     var loginMemberData = await jwt.verify(token, process.env.JWT_AUTH_KEY);
 
     const title = req.body.title;
@@ -76,6 +76,39 @@ router.post("/create", async (req, res, next) => {
 });
 
 /*
+-호출 주소 : http://localhost:5000/api/board/mypage
+*/
+router.get("/mypage", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.member_id; // JWT 토큰에서 추출한 사용자 ID (member_id 확인)
+    const userName = req.user.name;
+    // 데이터베이스에서 해당 사용자의 게시물만 조회
+    const boards = await db.Board.findAll({
+      where: { reg_member_id: userId }, // 로그인한 사용자의 게시물만 가져옴
+      attributes: [
+        "board_id",
+        "title",
+        "contents",
+        "view_count",
+        "reg_date",
+        "board_type_code",
+      ], // 필요한 필드만 선택
+    });
+
+    if (!boards) {
+      return res.status(404).json({ message: "게시글이 없습니다." });
+    }
+
+    res.status(200).json({ data: boards, userName, msg: "OK" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "서버 오류가 발생했습니다.", error: error.message });
+  }
+});
+
+/*
 조회수 증가
 */
 router.put("/:id/view", async (req, res) => {
@@ -100,37 +133,6 @@ router.put("/:id/view", async (req, res) => {
       .json({ message: "서버 오류로 조회수 증가에 실패했습니다." });
   }
 });
-
-/*
--호출 주소 : http://localhost:5000/api/board/mypage/:id
-*/
-router.get("/mypage/:id", authMiddleware, async (req, res, next) => {
-  let apiResult = {
-    code: 400,
-    data: null,
-    msg: "",
-  };
-  try {
-    const memberId = req.user.id; // 미들웨어에서 토큰으로 가져온 사용자 ID
-
-    // 해당 사용자의 게시글만 조회
-    const boards = await db.Board.findAll({
-      where: { reg_member_id: memberId },
-    });
-
-    apiResult.code = 200;
-    apiResult.data = boards;
-    apiResult.msg = "OK";
-  } catch (err) {
-    console.error(err);
-    apiResult.code = 500;
-    apiResult.data = null;
-    apiResult.msg = "Server Error";
-  }
-
-  res.json(apiResult);
-});
-
 /*
 -호출 주소 : http://localhost:5000/api/board/:id
 */

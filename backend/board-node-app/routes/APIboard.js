@@ -159,4 +159,81 @@ router.get("/:id", async (req, res, next) => {
   res.json(apiResult);
 });
 
+/*
+삭제 처리 : DELETE
+-호출 주소 : http://localhost:5000/api/board/:id
+*/
+router.delete("/:id", async (req, res, next) => {
+  let apiResult = {
+    code: 400,
+    data: null,
+    msg: "",
+  };
+  try {
+    const boardIdx = req.params.id;
+    const board = await db.Board.findOne({
+      where: { board_id: boardIdx },
+    });
+    if (!board) {
+      apiResult.code = 404;
+      apiResult.data = null;
+      apiResult.msg = "게시글이 없습니다.";
+      return res.json(apiResult);
+    }
+    await board.destroy();
+    apiResult.code = 200;
+    apiResult.data = board;
+    apiResult.msg = "게시글이 삭제되었습니다.";
+  } catch (err) {
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error";
+  }
+
+  res.json(apiResult);
+});
+
+/*
+수정 처리 : PUT
+-호출 주소 : http://localhost:5000/api/board/modify/:id
+*/
+router.put("/modify/:id", async (req, res, next) => {
+  let apiResult = {
+    code: 400,
+    data: null,
+    msg: "",
+  };
+  try {
+    const boardIdx = req.params.id;
+    const board = await db.Board.findOne({
+      where: { board_id: boardIdx },
+    });
+    if (!board) {
+      apiResult.code = 404;
+      apiResult.data = null;
+      apiResult.msg = "게시글이 없습니다.";
+      return res.json(apiResult);
+    }
+    const title = req.body.title;
+    const contents = req.body.contents;
+    const is_display_code = req.body.is_display_code;
+    const board_type_code = req.body.board_type_code;
+
+    board.title = title;
+    board.contents = contents;
+    board.is_display_code = is_display_code;
+    board.board_type_code = board_type_code;
+    await board.save();
+    apiResult.code = 200;
+    apiResult.data = board;
+    apiResult.msg = "게시글이 수정되었습니다.";
+  } catch (err) {
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error";
+  }
+
+  res.json(apiResult);
+});
+
 module.exports = router;

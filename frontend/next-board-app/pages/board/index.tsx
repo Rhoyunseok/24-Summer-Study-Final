@@ -20,6 +20,10 @@ const Boards = () => {
         }
         return 0; // 둘 다 같은 board_type_code이면 순서를 유지
       });
+      //is_display_code가 1인 게시글만 필터링
+      result.data = sortedBoard.filter(
+        (board: IBoard) => board.is_display_code === 1
+      );
       setBoards(result.data);
     } catch (error) {
       console.error(error);

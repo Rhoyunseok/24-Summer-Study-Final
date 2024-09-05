@@ -54,7 +54,6 @@ const BlogDetail = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/board/${boardId}`);
       const result = await res.json();
-      console.log("게시글 데이터:", result.data); // 게시글 데이터 로그로 확인
       setBoard(result.data); // API에서 받은 데이터를 상태로 설정
     } catch (error) {
       console.error("Failed to fetch board data:", error);
@@ -73,6 +72,28 @@ const BlogDetail = () => {
     } catch (error) {
       console.error("Failed to update view count:", error);
     }
+  };
+
+  // 게시글 삭제 함수
+  const handleDelete = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`http://localhost:5000/api/board/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // 토큰을 헤더에 포함
+        },
+      });
+      alert("게시글이 삭제되었습니다.");
+      router.push("/board"); // 삭제 후 게시판 목록으로 이동
+    } catch (error) {
+      console.error("Failed to delete board:", error);
+      alert("게시글 삭제에 실패했습니다.");
+    }
+  };
+
+  // 게시글 수정 함수
+  const handleEdit = () => {
+    router.push(`/board/modify/${id}`); // 수정 페이지로 이동
   };
 
   return (
@@ -151,10 +172,16 @@ const BlogDetail = () => {
           {/* 수정 및 삭제 버튼은 로그인한 사용자와 게시글 작성자가 동일할 때만 보이게 함 */}
           {loggedInUserId === board.reg_member_id && (
             <div className="mt-6 flex justify-between">
-              <button className="text-white bg-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-600 focus:ring-opacity-50">
+              <button
+                className="text-white bg-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-600 focus:ring-opacity-50"
+                onClick={handleEdit}
+              >
                 수정하기
               </button>
-              <button className="text-white bg-red-600 px-4 py-2 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">
+              <button
+                className="text-white bg-red-600 px-4 py-2 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:ring-opacity-50"
+                onClick={handleDelete}
+              >
                 삭제하기
               </button>
             </div>
